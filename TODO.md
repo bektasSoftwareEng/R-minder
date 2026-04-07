@@ -1,24 +1,25 @@
 # R-minder — Aktif Görev Listesi
 
-> Şu an üzerinde çalışılan faz: **Faz 2 — Ana Pencere**
+> Şu an üzerinde çalışılan faz: **Faz 3 — Masaüstü Widget**
 
 ---
 
 ## Yapılacaklar
 
-### Faz 2.1 — Ana Pencere İskeleti
-- [ ] `app/ui/main_window/main_window.py` — PyQt6 ana pencere
-- [ ] `app/ui/system_tray.py` — System tray ikonu ve menüsü
-- [ ] Minimize to tray davranışı
+### Faz 3.1 — Widget Altyapısı
+- [ ] `app/ui/widget/embedder.py` — Progman/WorkerW Win32 masaüstü gömme
+- [ ] Explorer yeniden başlatma watchdog
+- [ ] Widget pencere çerçevesi (frameless, şeffaf)
 
-### Faz 2.2 — Görev Yönetimi UI
-- [ ] `app/ui/main_window/task_list.py` — görev listesi
-- [ ] `app/ui/main_window/task_form.py` — ekle/düzenle formu
-- [ ] `app/ui/main_window/recurrence_picker.py` — tekrarlama seçici
+### Faz 3.2 — Widget UI
+- [ ] `app/ui/widget/tab_view.py` — Bugün / Yarın / Bu Hafta sekmeleri
+- [ ] `app/ui/widget/task_card.py` — mini görev kartı
+- [ ] Widget üzerinden hızlı tamamla / sil / ekle
 
-### Faz 2.3 — Koyu Tema
-- [ ] `app/ui/styles/dark_theme.qss`
-- [ ] `app/ui/styles/colors.py`
+### Faz 3.3 — Widget Etkileşim
+- [ ] Sürükle-bırak konum değiştirme
+- [ ] Köşelerden boyutlandırma
+- [ ] Konum/boyut kaydetme
 
 ---
 
@@ -40,6 +41,20 @@
 - [x] `app/utils/config.py` — ayar okuma/yazma
 - [x] `app/utils/date_utils.py` — tarih yardımcıları
 - [x] `app/utils/priority.py` — aciliyet renk ve sıra hesaplama
+
+### Faz 2.1 — Ana Pencere İskeleti
+- [x] `app/ui/main_window/main_window.py` — PyQt6 ana pencere
+- [x] `app/ui/system_tray.py` — System tray ikonu ve menüsü
+- [x] Minimize to tray davranışı
+
+### Faz 2.2 — Görev Yönetimi UI
+- [x] `app/ui/main_window/task_list.py` — görev listesi (TaskCard + TaskListWidget)
+- [x] `app/ui/main_window/task_form.py` — ekle/düzenle formu
+- [x] `app/ui/main_window/recurrence_picker.py` — tekrarlama seçici
+
+### Faz 2.3 — Koyu Tema
+- [x] `app/ui/styles/dark_theme.qss`
+- [x] `app/ui/styles/colors.py`
 
 ---
 

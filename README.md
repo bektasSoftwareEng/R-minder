@@ -15,7 +15,7 @@ Windows masaüstüne gömülü, her zaman görünür bir hatırlatıcı uygulama
 ## Gereksinimler
 
 - Windows 10 / 11
-- Python 3.11+
+- Python 3.11+ (sistem Python — Anaconda değil)
 
 ## Kurulum
 
@@ -25,6 +25,9 @@ cd R-minder
 pip install -r requirements.txt
 python main.py
 ```
+
+> **Not:** Anaconda ortamında PyQt6 DLL hatası alınabilir. Sistem Python ile çalıştır:
+> `"C:\Users\<kullanici>\AppData\Local\Programs\Python\Python3xx\python.exe" main.py`
 
 ## Proje Yapısı
 
