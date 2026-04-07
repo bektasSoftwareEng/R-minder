@@ -1,25 +1,34 @@
 # R-minder — Aktif Görev Listesi
 
-> Şu an üzerinde çalışılan faz: **Faz 3 — Masaüstü Widget**
+> Şu an üzerinde çalışılan faz: **Faz 4 — Bildirim & Zamanlama Motoru**
 
 ---
 
 ## Yapılacaklar
 
+### Faz 4.1 — Arka Plan Motoru
+- [ ] `app/services/reminder_engine.py` — QTimer tabanlı arka plan kontrol döngüsü
+- [ ] Yaklaşan görev tespiti (varsayılan: 15 dk önce)
+- [ ] Tekrar bildirim gönderme koruması (aynı gün aynı göreve bir kez)
+
+### Faz 4.2 — Windows Toast Bildirimleri
+- [ ] `app/services/notification_service.py` — winotify entegrasyonu
+- [ ] Bildirim öncesi süreyi config üzerinden ayarlama
+
 ### Faz 3.1 — Widget Altyapısı
-- [ ] `app/ui/widget/embedder.py` — Progman/WorkerW Win32 masaüstü gömme
-- [ ] Explorer yeniden başlatma watchdog
-- [ ] Widget pencere çerçevesi (frameless, şeffaf)
+- [x] `app/ui/widget/embedder.py` — Progman/WorkerW Win32 gömme + watchdog
+- [x] Explorer yeniden başlatma watchdog (5sn kontrol)
+- [x] Frameless + şeffaf arka planlı widget penceresi
 
 ### Faz 3.2 — Widget UI
-- [ ] `app/ui/widget/tab_view.py` — Bugün / Yarın / Bu Hafta sekmeleri
-- [ ] `app/ui/widget/task_card.py` — mini görev kartı
-- [ ] Widget üzerinden hızlı tamamla / sil / ekle
+- [x] `app/ui/widget/tab_view.py` — Bugün / Yarın / Bu Hafta sekmeleri
+- [x] `app/ui/widget/task_card.py` — kompakt görev kartı
+- [x] Hızlı tamamla / sil butonları
 
 ### Faz 3.3 — Widget Etkileşim
-- [ ] Sürükle-bırak konum değiştirme
-- [ ] Köşelerden boyutlandırma
-- [ ] Konum/boyut kaydetme
+- [x] Başlık çubuğundan sürükle-bırak konum değiştirme
+- [x] QSizeGrip ile köşeden boyutlandırma
+- [x] Konum/boyut kaydetme (config'e)
 
 ---
 

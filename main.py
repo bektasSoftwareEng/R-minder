@@ -8,6 +8,7 @@ from PyQt6.QtCore import Qt
 
 from app.core.database import initialize
 from app.ui.main_window.main_window import MainWindow
+from app.ui.widget.desktop_widget import DesktopWidget
 from app.ui.system_tray import SystemTray
 
 
@@ -29,13 +30,41 @@ def main():
 
     _load_stylesheet(app)
 
+    # Ana pencere
     window = MainWindow()
-    window.show()
 
+    # Masaüstü widget
+    widget = DesktopWidget()
+    widget.show()
+    widget.refresh()
+
+    # Widget → ana pencere bağlantısı
+    def open_main_and_add():
+        window.show()
+        window.raise_()
+        window.activateWindow()
+        window.open_add_form()
+
+    widget.open_main_window_requested.connect(window.toggle_visibility)
+    widget.add_task_requested.connect(open_main_and_add)
+
+    # Widget, ana penceredeki değişikliklerden haberdar olsun
+    # (MainWindow refresh sonrası widget da yenilensin)
+    original_refresh = window.refresh
+    def _refresh_both():
+        original_refresh()
+        widget.refresh()
+    window.refresh = _refresh_both
+
+    # System tray
     tray = SystemTray()
     tray.show_main_window_requested.connect(window.toggle_visibility)
-    tray.add_task_requested.connect(window.open_add_form)
+    tray.add_task_requested.connect(open_main_and_add)
     tray.quit_requested.connect(app.quit)
+
+    # Ana pencereyi başlangıçta gizli tut (sadece widget görünsün)
+    # İlk açılışta göster ki kullanıcı varlığından haberdar olsun
+    window.show()
 
     sys.exit(app.exec())
 
