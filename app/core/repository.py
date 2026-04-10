@@ -82,6 +82,20 @@ def get_tasks_by_date_range(start: date, end: date) -> list[Task]:
     return [_row_to_task(r) for r in rows]
 
 
+def get_recurring_tasks() -> list[Task]:
+    """Tekrarlama kuralı olan tamamlanmamış görevleri döner."""
+    with get_connection() as conn:
+        rows = conn.execute(
+            """
+            SELECT * FROM tasks
+            WHERE recurrence_id IS NOT NULL
+              AND is_completed = 0
+            ORDER BY due_date, due_time NULLS LAST
+            """
+        ).fetchall()
+    return [_row_to_task(r) for r in rows]
+
+
 def get_all_tasks(include_completed: bool = False) -> list[Task]:
     with get_connection() as conn:
         query = "SELECT * FROM tasks"
