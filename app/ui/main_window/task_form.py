@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import (
     QLineEdit, QTextEdit, QDateEdit, QTimeEdit,
     QPushButton, QCheckBox, QScrollArea, QWidget, QMessageBox,
 )
-from PyQt6.QtCore import Qt, QDate, QTime
+from PyQt6.QtCore import Qt, QDate, QTime, pyqtSignal
 from datetime import date, time
 
 from app.core.models import Task, RecurrenceRule
@@ -34,6 +34,7 @@ class TaskForm(QDialog):
         root.addWidget(self._label("Başlık *"))
         self.edit_title = QLineEdit()
         self.edit_title.setPlaceholderText("Görev başlığını girin...")
+        self.edit_title.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
         root.addWidget(self.edit_title)
 
         # Açıklama
@@ -41,6 +42,7 @@ class TaskForm(QDialog):
         self.edit_desc = QTextEdit()
         self.edit_desc.setPlaceholderText("Opsiyonel açıklama...")
         self.edit_desc.setFixedHeight(80)
+        self.edit_desc.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
         root.addWidget(self.edit_desc)
 
         # Tarih
@@ -50,17 +52,19 @@ class TaskForm(QDialog):
         self.edit_date = QDateEdit()
         self.edit_date.setCalendarPopup(True)
         self.edit_date.setDate(QDate.currentDate())
+        self.edit_date.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
         date_col.addWidget(self.edit_date)
         date_row.addLayout(date_col)
 
-        # Saat (opsiyonel)
+        # Saat (opsiyonel) — checkbox işaretlenince görünür
         time_col = QVBoxLayout()
         self.chk_time = QCheckBox("Saat ekle")
         self.edit_time = QTimeEdit()
         self.edit_time.setDisplayFormat("HH:mm")
         self.edit_time.setTime(QTime.currentTime())
-        self.edit_time.setEnabled(False)
-        self.chk_time.toggled.connect(self.edit_time.setEnabled)
+        self.edit_time.setVisible(False)
+        self.edit_time.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
+        self.chk_time.toggled.connect(self.edit_time.setVisible)
         time_col.addWidget(self.chk_time)
         time_col.addWidget(self.edit_time)
         date_row.addLayout(time_col)
@@ -95,6 +99,7 @@ class TaskForm(QDialog):
         self.edit_date.setDate(QDate(task.due_date.year, task.due_date.month, task.due_date.day))
         if task.due_time:
             self.chk_time.setChecked(True)
+            self.edit_time.setVisible(True)
             self.edit_time.setTime(QTime(task.due_time.hour, task.due_time.minute))
         if task.recurrence_rule:
             self.recurrence_picker.set_rule(task.recurrence_rule)

@@ -131,6 +131,17 @@ QDateEdit::drop-down, QTimeEdit::drop-down {
     border: none;
     width: 20px;
 }
+QDateEdit::up-button, QDateEdit::down-button,
+QTimeEdit::up-button, QTimeEdit::down-button {
+    subcontrol-origin: border;
+    width: 16px;
+    cursor: pointer;
+}
+QDateEdit::up-button:hover, QDateEdit::down-button:hover,
+QTimeEdit::up-button:hover, QTimeEdit::down-button:hover {
+    background-color: #45475A;
+    border-radius: 3px;
+}
 QCalendarWidget {
     background-color: #313244;
     color: #CDD6F4;
@@ -152,6 +163,15 @@ QSpinBox {
 }
 QSpinBox:focus {
     border: 1px solid #89B4FA;
+}
+QSpinBox::up-button, QSpinBox::down-button {
+    subcontrol-origin: border;
+    width: 16px;
+    cursor: pointer;
+}
+QSpinBox::up-button:hover, QSpinBox::down-button:hover {
+    background-color: #45475A;
+    border-radius: 3px;
 }
 
 /* ===== CHECKBOX ===== */
