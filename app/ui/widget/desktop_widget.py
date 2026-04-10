@@ -8,17 +8,11 @@ from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QPushButton, QTabWidget, QSizeGrip, QApplication,
 )
-from PyQt6.QtCore import Qt, QTimer, QPoint, QSize, pyqtSignal
-from PyQt6.QtGui import QColor, QPalette, QCursor
+from PyQt6.QtCore import Qt, QTimer, QPoint, pyqtSignal
 
 from app.services import task_service
-from app.core import repository
 from app.ui.widget.tab_view import WidgetTabView
-from app.ui.widget.embedder import DesktopEmbedder
 from app.utils.config import get_widget_geometry, save_widget_geometry
-
-# Boyutlandırma kenar toleransı (piksel)
-_RESIZE_MARGIN = 8
 
 
 class DesktopWidget(QWidget):
@@ -28,7 +22,9 @@ class DesktopWidget(QWidget):
     def __init__(self):
         super().__init__(
             None,
-            Qt.WindowType.FramelessWindowHint | Qt.WindowType.Tool,
+            Qt.WindowType.FramelessWindowHint
+            | Qt.WindowType.Tool
+            | Qt.WindowType.WindowStaysOnBottomHint,
         )
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setWindowTitle("R-minder Widget")
@@ -38,26 +34,9 @@ class DesktopWidget(QWidget):
         self.setMinimumSize(240, 300)
 
         self._drag_pos: QPoint | None = None
-        self._resize_edge: str | None = None
 
         self._build_ui()
         self._setup_refresh_timer()
-
-        # Masaüstüne göm
-        self._embedder = DesktopEmbedder(self, self)
-        # Pencere handle'ı hazır olmadan embed çağrılmamalı;
-        # ilk show() sonrası embed yapıyoruz.
-
-    # ------------------------------------------------------------------
-    def showEvent(self, event):
-        super().showEvent(event)
-        # İlk gösterimde göm
-        QTimer.singleShot(100, self._embed)
-
-    def _embed(self):
-        success = self._embedder.embed()
-        if success:
-            self._embedder.start_watchdog()
 
     # ------------------------------------------------------------------
     def _build_ui(self):
@@ -198,16 +177,8 @@ class DesktopWidget(QWidget):
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             self._drag_pos = None
-            # Yeni konumu kaydet
             geo = self.geometry()
             save_widget_geometry(geo.x(), geo.y(), geo.width(), geo.height())
-            # Embed sonrası konum güncelle
-            if self._embedder._parent_hwnd:
-                import ctypes
-                ctypes.windll.user32.MoveWindow(
-                    self._embedder._hwnd,
-                    geo.x(), geo.y(), geo.width(), geo.height(), True
-                )
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
