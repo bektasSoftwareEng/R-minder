@@ -163,6 +163,27 @@ def get_recurrence_rule(rule_id: int) -> Optional[RecurrenceRule]:
     return _row_to_recurrence(row) if row else None
 
 
+def update_recurrence_rule(rule: RecurrenceRule) -> None:
+    with get_connection() as conn:
+        conn.execute(
+            """
+            UPDATE recurrence_rules
+            SET rule_type = ?, interval = ?, day_of_week = ?,
+                day_of_month = ?, month_of_year = ?, end_date = ?
+            WHERE id = ?
+            """,
+            (
+                rule.rule_type,
+                rule.interval,
+                rule.day_of_week,
+                rule.day_of_month,
+                rule.month_of_year,
+                rule.end_date.isoformat() if rule.end_date else None,
+                rule.id,
+            ),
+        )
+
+
 def delete_recurrence_rule(rule_id: int) -> None:
     with get_connection() as conn:
         conn.execute("DELETE FROM recurrence_rules WHERE id = ?", (rule_id,))
