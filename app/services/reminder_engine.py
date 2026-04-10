@@ -6,7 +6,7 @@ Windows Toast bildirimi gönderir. Aynı göreve aynı oturumda
 birden fazla bildirim gönderilmez.
 """
 import logging
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 from PyQt6.QtCore import QObject, QTimer, pyqtSignal
 
@@ -65,7 +65,9 @@ class ReminderEngine(QObject):
         today = date.today()
 
         try:
-            tasks = repository.get_tasks_by_date_range(today, today)
+            # Geçmiş tarihlerdeki gecikmiş görevleri de yakala (30 güne kadar)
+            lookback = today - timedelta(days=30)
+            tasks = repository.get_tasks_by_date_range(lookback, today)
         except Exception as exc:
             logger.error("Gorev sorgusu basarisiz: %s", exc)
             return
@@ -87,7 +89,7 @@ class ReminderEngine(QObject):
             return
         # Bildirim penceresi: [0, lead_minutes]
         if 0 <= minutes_left <= lead_minutes:
-            notification_service.send_due_soon(task.title, int(minutes_left))
+            notification_service.send_due_soon(task.title, round(minutes_left))
             self._notified.add(key)
             self.task_notified.emit(task.id)
             logger.debug("Due-soon bildirimi: task_id=%d, %.1f dk kaldi", task.id, minutes_left)
