@@ -10,9 +10,9 @@ from app.ui.styles.colors import PRIORITY_COLORS, BG_SECONDARY, TEXT_MUTED
 
 
 class TaskCard(QFrame):
-    complete_requested = pyqtSignal(int)
-    edit_requested     = pyqtSignal(int)
-    delete_requested   = pyqtSignal(int)
+    complete_requested = pyqtSignal(object)
+    edit_requested     = pyqtSignal(object)
+    delete_requested   = pyqtSignal(object)
 
     def __init__(self, task: Task, parent=None):
         super().__init__(parent)
@@ -65,29 +65,29 @@ class TaskCard(QFrame):
             btn_done.setObjectName("btn_icon")
             btn_done.setToolTip("Tamamlandı olarak işaretle")
             btn_done.setFixedSize(30, 30)
-            btn_done.clicked.connect(lambda: self.complete_requested.emit(self.task.id))
+            btn_done.clicked.connect(lambda: self.complete_requested.emit(self.task))
             layout.addWidget(btn_done)
 
         btn_edit = QPushButton("✎")
         btn_edit.setObjectName("btn_icon")
         btn_edit.setToolTip("Düzenle")
         btn_edit.setFixedSize(30, 30)
-        btn_edit.clicked.connect(lambda: self.edit_requested.emit(self.task.id))
+        btn_edit.clicked.connect(lambda: self.edit_requested.emit(self.task))
         layout.addWidget(btn_edit)
 
         btn_del = QPushButton("✕")
         btn_del.setObjectName("btn_danger")
         btn_del.setToolTip("Sil")
         btn_del.setFixedSize(30, 30)
-        btn_del.clicked.connect(lambda: self.delete_requested.emit(self.task.id))
+        btn_del.clicked.connect(lambda: self.delete_requested.emit(self.task))
         layout.addWidget(btn_del)
 
 
 class TaskListWidget(QWidget):
     """Görevleri liste halinde gösteren, kaydırılabilir alan."""
-    complete_requested = pyqtSignal(int)
-    edit_requested     = pyqtSignal(int)
-    delete_requested   = pyqtSignal(int)
+    complete_requested = pyqtSignal(object)
+    edit_requested     = pyqtSignal(object)
+    delete_requested   = pyqtSignal(object)
 
     def __init__(self, parent=None):
         super().__init__(parent)

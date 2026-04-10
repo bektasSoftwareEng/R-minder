@@ -2,106 +2,104 @@
 
 ## Faz 1 — Temel Altyapı (Core)
 
-Uygulamanın çalışması için gereken minimum yapı.
-
 ### 1.1 Proje İskeleti
-- [ ] Klasör yapısı ve `__init__.py` dosyaları
-- [ ] `requirements.txt` oluşturma (PyQt6, winotify)
-- [ ] `main.py` entry point
+- [x] Klasör yapısı ve `__init__.py` dosyaları
+- [x] `requirements.txt` oluşturma (PyQt6, winotify)
+- [x] `main.py` entry point
 
 ### 1.2 Veri Katmanı
-- [ ] `database.py` — SQLite bağlantı ve migration sistemi
-- [ ] `models.py` — Task, RecurrenceRule, TaskException dataclass'ları
-- [ ] `repository.py` — CRUD operasyonları (oluştur, oku, güncelle, sil)
+- [x] `database.py` — SQLite bağlantı ve migration sistemi
+- [x] `models.py` — Task, RecurrenceRule, TaskException dataclass'ları
+- [x] `repository.py` — CRUD operasyonları (oluştur, oku, güncelle, sil)
 
 ### 1.3 Servis Katmanı (Temel)
-- [ ] `task_service.py` — görev iş mantığı, öncelik hesaplama
-- [ ] `recurrence_service.py` — basit tekrarlama (günlük, haftalık, aylık, yıllık)
-- [ ] `config.py` — ayar okuma/yazma (widget konumu vb.)
+- [x] `task_service.py` — görev iş mantığı, öncelik hesaplama
+- [x] `recurrence_service.py` — basit tekrarlama (günlük, haftalık, aylık, yıllık)
+- [x] `config.py` — ayar okuma/yazma (widget konumu vb.)
 
 ---
 
 ## Faz 2 — Ana Pencere (Main Window)
 
-Tam özellikli yönetim arayüzü.
-
 ### 2.1 Ana Pencere İskeleti
-- [ ] `main_window.py` — PyQt6 ana pencere, menü çubuğu
-- [ ] System tray entegrasyonu (`system_tray.py`)
-- [ ] Minimize to tray davranışı
+- [x] `main_window.py` — PyQt6 ana pencere, menü çubuğu
+- [x] System tray entegrasyonu (`system_tray.py`)
+- [x] Minimize to tray davranışı
 
 ### 2.2 Görev Yönetimi UI
-- [ ] `task_list.py` — görev listesi (filtreleme, sıralama)
-- [ ] `task_form.py` — görev ekleme/düzenleme formu
-- [ ] `recurrence_picker.py` — tekrarlama pattern seçici
+- [x] `task_list.py` — görev listesi (filtreleme, sıralama)
+- [x] `task_form.py` — görev ekleme/düzenleme formu
+- [x] `recurrence_picker.py` — tekrarlama pattern seçici
 
 ### 2.3 Koyu Tema
-- [ ] `dark_theme.qss` — tam koyu tema stylesheet
-- [ ] `colors.py` — öncelik renk sabitleri
+- [x] `dark_theme.qss` — tam koyu tema stylesheet
+- [x] `colors.py` — öncelik renk sabitleri
 
 ---
 
 ## Faz 3 — Masaüstü Widget
 
-Masaüstüne gömülü her zaman görünen panel.
-
 ### 3.1 Widget Altyapısı
-- [ ] `embedder.py` — Progman/WorkerW Win32 gömme mekanizması
-- [ ] Explorer yeniden başlatma watchdog
-- [ ] Widget pencere çerçevesi (frameless, şeffaf arka plan)
+- [x] Frameless + şeffaf arka planlı widget penceresi (`WindowStaysOnBottomHint`)
+- [x] Daralt / Genişlet (collapse/expand) toggle
+- [x] `embedder.py` — Win32 Progman/WorkerW kodu (Windows 11 uyumsuzluğu nedeniyle pasif)
 
 ### 3.2 Widget UI
-- [ ] `tab_view.py` — Bugün / Yarın / Bu Hafta sekmeleri
-- [ ] `task_card.py` — görev kartı bileşeni (renk, öncelik göstergesi)
-- [ ] Widget üzerinden hızlı tamamla / sil
-- [ ] Widget üzerinden hızlı görev ekleme
+- [x] `tab_view.py` — Bugün / Yarın / Bu Hafta sekmeleri
+- [x] `task_card.py` — görev kartı bileşeni (renk, öncelik göstergesi)
+- [x] Widget üzerinden hızlı tamamla / sil
+- [x] Widget üzerinden hızlı görev ekleme
 
 ### 3.3 Widget Etkileşim
-- [ ] Sürükle-bırak ile konum değiştirme
-- [ ] Köşelerden boyutlandırma
-- [ ] Konum/boyut ayarlarını kaydetme
+- [x] Sürükle-bırak ile konum değiştirme
+- [x] Köşelerden boyutlandırma (QSizeGrip)
+- [x] Konum/boyut ayarlarını kaydetme
 
 ---
 
 ## Faz 4 — Bildirim & Zamanlama Motoru
 
 ### 4.1 Arka Plan Motoru
-- [ ] `reminder_engine.py` — QTimer tabanlı arka plan kontrol döngüsü
-- [ ] Yaklaşan görev tespiti (varsayılan: 15 dk önce)
-- [ ] Tekrar bildirim gönderme koruması
+- [x] `reminder_engine.py` — QTimer tabanlı arka plan kontrol döngüsü
+- [x] Yaklaşan görev tespiti (varsayılan: 15 dk önce)
+- [x] Tekrar bildirim gönderme koruması (aynı gün aynı göreve bir kez)
+- [x] 30 günlük lookback — geçmiş gecikmiş görevler de yakalanır
 
 ### 4.2 Windows Toast Bildirimleri
-- [ ] `notification_service.py` — winotify entegrasyonu
-- [ ] Bildirime tıklayınca göreve gitme
-- [ ] Bildirim öncesi süreyi ayarlar üzerinden değiştirme
+- [x] `notification_service.py` — winotify entegrasyonu
+- [x] Bildirim öncesi süreyi ayarlar üzerinden değiştirme
 
 ---
 
 ## Faz 5 — Gelişmiş Tekrarlama
 
 ### 5.1 Özel Tekrarlama Kuralları
-- [ ] "Her ayın Nth günü" desteği
-- [ ] "Her N haftada bir" desteği
-- [ ] "Belirli haftanın günleri" (Pazartesi + Çarşamba gibi)
+- [x] "Her ayın Nth günü" desteği
+- [x] "Her N haftada bir" desteği
+- [x] "Belirli haftanın günleri" (Pazartesi + Çarşamba gibi)
 
 ### 5.2 İstisna Yönetimi
-- [ ] "Sadece bu instance'ı düzenle" (tek seferlik override)
-- [ ] "Bu instance'ı sil, diğerleri devam etsin"
-- [ ] `task_exceptions` tablosu entegrasyonu
+- [x] "Sadece bu instance'ı düzenle" — yeni bağımsız task oluşturur, seed'e dokunmaz
+- [x] "Bu instance'ı sil, diğerleri devam etsin" — sadece exception kaydı, seed korunur
+- [x] `task_exceptions` tablosu entegrasyonu
+- [x] Virtual occurrence üretimi — tekrarlayan görevler query-time'da üretilir, DB'de saklanmaz
 
 ---
 
 ## Faz 6 — Cilalama & Dağıtım
 
 ### 6.1 UX İyileştirmeleri
+- [x] Saat alanı toggle (sadece saat gerekliyse görünür)
+- [x] ClickFocus politikası — alan seçilmeden cursor girmez
+- [x] Spinner/DateEdit butonlarında pointer cursor
 - [ ] Animasyonlar (kart geçişleri, sekme değişimi)
 - [ ] Klavye kısayolları
 - [ ] Widget sağ tık context menüsü
 
 ### 6.2 Ayarlar Ekranı
-- [ ] Bildirim öncesi süre
-- [ ] Widget varsayılan konum/boyut sıfırlama
-- [ ] Başlangıçta otomatik başlatma (Windows startup registry)
+- [x] `settings_dialog.py` — bildirim öncesi süre, widget konum sıfırlama, autostart
+- [x] Widget konumunu sıfırlama (kayıtlı geometriyi uygular, widget'ı gösterir)
+- [x] Windows başlangıcında otomatik başlatma (registry)
 
 ### 6.3 Paketleme
 - [ ] PyInstaller ile tek `.exe` üretimi

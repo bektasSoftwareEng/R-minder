@@ -236,12 +236,16 @@ class DesktopWidget(QWidget):
         self.tabs.setTabText(0, label)
 
     # ------------------------------------------------------------------
-    def _on_complete(self, task_id: int):
-        task_service.complete_task(task_id)
+    def _on_complete(self, task):
+        task_service.complete_task(task.id)
         self.data_changed.emit()
 
-    def _on_delete(self, task_id: int):
-        task_service.delete_task(task_id)
+    def _on_delete(self, task):
+        if task.recurrence_id:
+            from app.services import recurrence_service
+            recurrence_service.create_exception_delete(task.recurrence_id, task.due_date)
+        else:
+            task_service.delete_task(task.id)
         self.data_changed.emit()
 
     # ------------------------------------------------------------------

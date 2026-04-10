@@ -9,8 +9,8 @@ from app.ui.styles.colors import PRIORITY_COLORS, TEXT_MUTED, BG_SECONDARY
 class WidgetTaskCard(QFrame):
     """Widget için kompakt görev kartı."""
 
-    complete_requested = pyqtSignal(int)
-    delete_requested   = pyqtSignal(int)
+    complete_requested = pyqtSignal(object)
+    delete_requested   = pyqtSignal(object)
 
     def __init__(self, task: Task, parent=None):
         super().__init__(parent)
@@ -67,7 +67,7 @@ class WidgetTaskCard(QFrame):
             btn_done.setObjectName("btn_icon")
             btn_done.setFixedSize(24, 24)
             btn_done.setToolTip("Tamamlandı")
-            btn_done.clicked.connect(lambda: self.complete_requested.emit(self.task.id))
+            btn_done.clicked.connect(lambda: self.complete_requested.emit(self.task))
             layout.addWidget(btn_done)
 
         btn_del = QPushButton("✕")
@@ -75,7 +75,7 @@ class WidgetTaskCard(QFrame):
         btn_del.setFixedSize(24, 24)
         btn_del.setToolTip("Sil")
         btn_del.setStyleSheet("color: #F38BA8;")
-        btn_del.clicked.connect(lambda: self.delete_requested.emit(self.task.id))
+        btn_del.clicked.connect(lambda: self.delete_requested.emit(self.task))
         layout.addWidget(btn_del)
 
     @staticmethod

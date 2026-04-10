@@ -21,10 +21,12 @@ def _occurrences_in_range(start: date, end: date) -> list[Task]:
     """
     Tekrarlayan görevlerin start-end arasına düşen sanal occurrence'larını üretir.
 
-    - Base task'ın due_date'i zaten aralıktaysa tekrar üretmez
-      (normal sorgu zaten onu getirir).
-    - Her occurrence için base task'ın derin kopyası döner,
-      sadece due_date occurrence tarihiyle değiştirilir.
+    Tüm recurring görünürlük bu fonksiyon üzerinden geçer; direkt DB sorgusu
+    recurring task'ları döndürmez. Bu sayede task_exceptions her tarih için
+    (seed'in due_date'i dahil) doğru çalışır.
+
+    - Seri başlangıcı (base.due_date) öncesi occurrence üretilmez.
+    - Her occurrence için base task'ın sığ kopyası döner, due_date değiştirilir.
     """
     result: list[Task] = []
 
@@ -34,10 +36,12 @@ def _occurrences_in_range(start: date, end: date) -> list[Task]:
             continue
         base.recurrence_rule = rule
 
-        for occ_date in recurrence_service.generate_occurrences(rule, start, end):
-            # Base task bu tarihe zaten denk geliyorsa atla
-            if base.due_date == occ_date:
-                continue
+        # Seri kendi başlangıç tarihinden önce görünmemeli
+        effective_start = max(start, base.due_date)
+        if effective_start > end:
+            continue
+
+        for occ_date in recurrence_service.generate_occurrences(rule, effective_start, end):
             virtual = copy.copy(base)
             virtual.due_date = occ_date
             result.append(virtual)
@@ -83,32 +87,34 @@ def delete_task(task_id: int, delete_recurrence: bool = False) -> None:
         repository.delete_recurrence_rule(task.recurrence_id)
 
 
+def _non_recurring_in_range(start: date, end: date) -> list[Task]:
+    """Sadece tekrarlamayan görevleri döner (recurring'ler _occurrences_in_range'den gelir)."""
+    return [t for t in repository.get_tasks_by_date_range(start, end)
+            if t.recurrence_id is None]
+
+
 def get_tasks_for_today() -> list[Task]:
     _today = today()
-    tasks = repository.get_tasks_by_date_range(_today, _today)
+    tasks = _non_recurring_in_range(_today, _today)
     tasks += _occurrences_in_range(_today, _today)
-    tasks = [_enrich(t) for t in tasks]
-    return sorted(tasks, key=lambda t: -t.priority)
+    return sorted([_enrich(t) for t in tasks], key=lambda t: -t.priority)
 
 
 def get_tasks_for_tomorrow() -> list[Task]:
     _tomorrow = tomorrow()
-    tasks = repository.get_tasks_by_date_range(_tomorrow, _tomorrow)
+    tasks = _non_recurring_in_range(_tomorrow, _tomorrow)
     tasks += _occurrences_in_range(_tomorrow, _tomorrow)
-    tasks = [_enrich(t) for t in tasks]
-    return sorted(tasks, key=lambda t: -t.priority)
+    return sorted([_enrich(t) for t in tasks], key=lambda t: -t.priority)
 
 
 def get_tasks_for_this_week() -> list[Task]:
     _today = today()
     _end = week_end()
-    tasks = repository.get_tasks_by_date_range(_today, _end)
+    tasks = _non_recurring_in_range(_today, _end)
     tasks += _occurrences_in_range(_today, _end)
-    tasks = [_enrich(t) for t in tasks]
-    return sorted(tasks, key=lambda t: (-t.priority, t.due_date))
+    return sorted([_enrich(t) for t in tasks], key=lambda t: (-t.priority, t.due_date))
 
 
 def get_all_tasks(include_completed: bool = False) -> list[Task]:
     tasks = repository.get_all_tasks(include_completed)
-    tasks = [_enrich(t) for t in tasks]
-    return sorted(tasks, key=lambda t: (-t.priority, t.due_date))
+    return sorted([_enrich(t) for t in tasks], key=lambda t: (-t.priority, t.due_date))

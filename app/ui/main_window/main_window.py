@@ -13,8 +13,9 @@ from app.services import recurrence_service
 
 
 class MainWindow(QMainWindow):
-    toggle_widget_requested = pyqtSignal()
-    data_changed            = pyqtSignal()   # ekle/düzenle/sil/tamamla sonrası emit
+    toggle_widget_requested  = pyqtSignal()
+    widget_reset_requested   = pyqtSignal()
+    data_changed             = pyqtSignal()   # ekle/düzenle/sil/tamamla sonrası emit
 
     def __init__(self):
         super().__init__()
@@ -128,37 +129,40 @@ class MainWindow(QMainWindow):
                 )
             self.data_changed.emit()
 
-    def _on_complete(self, task_id: int):
-        task_service.complete_task(task_id)
+    def _on_complete(self, task):
+        task_service.complete_task(task.id)
         self.data_changed.emit()
 
-    def _on_edit(self, task_id: int):
-        task = repository.get_task(task_id)
-        if task is None:
-            return
-
+    def _on_edit(self, task):
         if task.recurrence_id:
-            task.recurrence_rule = repository.get_recurrence_rule(task.recurrence_id)
+            if task.recurrence_rule is None:
+                task.recurrence_rule = repository.get_recurrence_rule(task.recurrence_id)
             dlg = RecurrenceActionDialog("edit", task.title, parent=self)
             choice = dlg.exec()
             if choice == RecurrenceActionDialog.ONLY_THIS:
                 self._edit_single_instance(task)
             elif choice == RecurrenceActionDialog.ALL_SERIES:
-                self._edit_full_series(task)
+                seed = repository.get_task(task.id)
+                if seed:
+                    seed.recurrence_rule = task.recurrence_rule
+                    self._edit_full_series(seed)
         else:
             self.open_add_form(task)
 
     def _edit_single_instance(self, task):
-        """Bu instance'ı seridenden kopararak bağımsız olarak düzenle."""
+        """Bu occurrence için yeni bağımsız task oluştur; seed'e dokunma."""
         form = TaskForm(self, task, show_recurrence=False)
         if form.exec():
             data = form.get_data()
-            task.title       = data["title"]
-            task.description = data["description"]
-            task.due_date    = data["due_date"]
-            task.due_time    = data["due_time"]
-            task.recurrence_id = None          # seriden kopar
-            task_service.update_task(task)
+            new_task = task_service.create_task(
+                title=data["title"],
+                due_date=data["due_date"],
+                description=data["description"] or "",
+                due_time=data["due_time"],
+            )
+            recurrence_service.create_exception_modify(
+                task.recurrence_id, task.due_date, new_task.id
+            )
             self.data_changed.emit()
 
     def _edit_full_series(self, task):
@@ -185,20 +189,15 @@ class MainWindow(QMainWindow):
             task_service.update_task(task)
             self.data_changed.emit()
 
-    def _on_delete(self, task_id: int):
-        task = repository.get_task(task_id)
-        if task is None:
-            return
-
+    def _on_delete(self, task):
         if task.recurrence_id:
             dlg = RecurrenceActionDialog("delete", task.title, parent=self)
             choice = dlg.exec()
             if choice == RecurrenceActionDialog.ONLY_THIS:
-                # Sadece bu instance: task_exceptions'a işle, task kaydını sil
+                # Sadece bu occurrence: exception kaydet, seed'e dokunma
                 recurrence_service.create_exception_delete(task.recurrence_id, task.due_date)
-                task_service.delete_task(task_id, delete_recurrence=False)
             elif choice == RecurrenceActionDialog.ALL_SERIES:
-                task_service.delete_task(task_id, delete_recurrence=True)
+                task_service.delete_task(task.id, delete_recurrence=True)
             else:
                 return
         else:
@@ -208,14 +207,14 @@ class MainWindow(QMainWindow):
             )
             if reply != QMessageBox.StandardButton.Yes:
                 return
-            task_service.delete_task(task_id)
+            task_service.delete_task(task.id)
 
         self.data_changed.emit()
 
     def _open_settings(self):
         from app.ui.settings_dialog import SettingsDialog
         dlg = SettingsDialog(
-            on_widget_reset=lambda: self.toggle_widget_requested.emit(),
+            on_widget_reset=lambda: self.widget_reset_requested.emit(),
             parent=self,
         )
         dlg.exec()

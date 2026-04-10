@@ -11,8 +11,8 @@ from app.ui.styles.colors import TEXT_MUTED
 class WidgetTabView(QWidget):
     """Widget içindeki tek sekme — kaydırılabilir kompakt görev listesi."""
 
-    complete_requested = pyqtSignal(int)
-    delete_requested   = pyqtSignal(int)
+    complete_requested = pyqtSignal(object)
+    delete_requested   = pyqtSignal(object)
 
     def __init__(self, parent=None):
         super().__init__(parent)

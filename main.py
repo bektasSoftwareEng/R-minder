@@ -58,6 +58,16 @@ def main():
 
     window.toggle_widget_requested.connect(toggle_widget)
 
+    def reset_widget():
+        from app.utils.config import get_widget_geometry
+        x, y, w, h = get_widget_geometry()
+        widget.setGeometry(x, y, w, h)
+        if not widget.isVisible():
+            widget.show()
+        widget.refresh()
+
+    window.widget_reset_requested.connect(reset_widget)
+
     # Merkezi yenileme — her veri değişiminde hem pencere hem widget güncellenir
     def refresh_all():
         window.refresh()
