@@ -10,6 +10,7 @@ from app.core.database import initialize
 from app.ui.main_window.main_window import MainWindow
 from app.ui.widget.desktop_widget import DesktopWidget
 from app.ui.system_tray import SystemTray
+from app.services.reminder_engine import ReminderEngine
 
 
 def _load_stylesheet(app: QApplication) -> None:
@@ -62,8 +63,13 @@ def main():
     tray.add_task_requested.connect(open_main_and_add)
     tray.quit_requested.connect(app.quit)
 
-    # Ana pencereyi başlangıçta gizli tut (sadece widget görünsün)
-    # İlk açılışta göster ki kullanıcı varlığından haberdar olsun
+    # Bildirim motoru
+    engine = ReminderEngine(parent=app)
+    engine.task_notified.connect(lambda _: widget.refresh())
+    engine.task_notified.connect(lambda _: window.refresh())
+    engine.start()
+
+    # Ana pencereyi başlangıçta göster (kullanıcı varlığından haberdar olsun)
     window.show()
 
     sys.exit(app.exec())

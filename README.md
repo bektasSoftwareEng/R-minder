@@ -128,7 +128,7 @@ Uygulama `data/rminder.db` adında bir SQLite dosyası oluşturur. Bu dosya repo
 | 1 | Temel altyapı — DB, modeller, servisler | ✅ Tamamlandı |
 | 2 | Ana pencere, system tray, koyu tema | ✅ Tamamlandı |
 | 3 | Masaüstü widget, Win32 gömme | ✅ Tamamlandı |
-| 4 | Bildirim motoru (Windows Toast) | 🔄 Devam ediyor |
+| 4 | Bildirim motoru (Windows Toast) | ✅ Tamamlandı |
 | 5 | Gelişmiş tekrarlama istisnaları | ⏳ Bekliyor |
 | 6 | Paketleme (.exe), ayarlar ekranı | ⏳ Bekliyor |
 
