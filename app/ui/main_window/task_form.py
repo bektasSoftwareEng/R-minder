@@ -13,9 +13,10 @@ from app.ui.main_window.recurrence_picker import RecurrencePicker
 class TaskForm(QDialog):
     """Görev ekleme ve düzenleme diyalogu."""
 
-    def __init__(self, parent=None, task: Task | None = None):
+    def __init__(self, parent=None, task: Task | None = None, show_recurrence: bool = True):
         super().__init__(parent)
         self._task = task
+        self._show_recurrence = show_recurrence
         self.setWindowTitle("Görev Düzenle" if task else "Yeni Görev")
         self.setMinimumWidth(420)
         self.setModal(True)
@@ -65,8 +66,9 @@ class TaskForm(QDialog):
         date_row.addLayout(time_col)
         root.addLayout(date_row)
 
-        # Tekrarlama
+        # Tekrarlama (instance düzenlemede gizlenir)
         self.recurrence_picker = RecurrencePicker()
+        self.recurrence_picker.setVisible(self._show_recurrence)
         root.addWidget(self.recurrence_picker)
 
         # Butonlar
