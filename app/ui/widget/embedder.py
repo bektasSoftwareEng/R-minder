@@ -116,6 +116,11 @@ class DesktopEmbedder(QObject):
         x, y, w, h = get_widget_geometry()
         _user32.MoveWindow(self._hwnd, x, y, w, h, True)
 
+        # SetParent sonrası Qt pencereyi gizleyebilir — Win32 ile zorla göster
+        _SW_SHOW = 5
+        _user32.ShowWindow(self._hwnd, _SW_SHOW)
+        _user32.UpdateWindow(self._hwnd)
+
         logger.info(
             "Widget gömüldü: parent=%d win11=%s konum=(%d,%d,%dx%d)",
             parent_hwnd, is_win11, x, y, w, h,
