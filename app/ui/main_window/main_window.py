@@ -14,6 +14,7 @@ from app.services import recurrence_service
 
 class MainWindow(QMainWindow):
     toggle_widget_requested = pyqtSignal()
+    data_changed            = pyqtSignal()   # ekle/düzenle/sil/tamamla sonrası emit
 
     def __init__(self):
         super().__init__()
@@ -125,11 +126,11 @@ class MainWindow(QMainWindow):
                     due_time=data["due_time"],
                     recurrence_rule=data["recurrence_rule"],
                 )
-            self.refresh()
+            self.data_changed.emit()
 
     def _on_complete(self, task_id: int):
         task_service.complete_task(task_id)
-        self.refresh()
+        self.data_changed.emit()
 
     def _on_edit(self, task_id: int):
         task = repository.get_task(task_id)
@@ -158,7 +159,7 @@ class MainWindow(QMainWindow):
             task.due_time    = data["due_time"]
             task.recurrence_id = None          # seriden kopar
             task_service.update_task(task)
-            self.refresh()
+            self.data_changed.emit()
 
     def _edit_full_series(self, task):
         """Görevin tüm serisini (kural dahil) düzenle."""
@@ -182,7 +183,7 @@ class MainWindow(QMainWindow):
                     repository.delete_recurrence_rule(task.recurrence_id)
                 task.recurrence_id = None
             task_service.update_task(task)
-            self.refresh()
+            self.data_changed.emit()
 
     def _on_delete(self, task_id: int):
         task = repository.get_task(task_id)
@@ -209,7 +210,7 @@ class MainWindow(QMainWindow):
                 return
             task_service.delete_task(task_id)
 
-        self.refresh()
+        self.data_changed.emit()
 
     def _open_settings(self):
         from app.ui.settings_dialog import SettingsDialog

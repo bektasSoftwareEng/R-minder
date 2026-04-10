@@ -22,6 +22,7 @@ _BTN_STYLE  = "font-size: {size}px; font-weight: {w}; background: transparent; b
 class DesktopWidget(QWidget):
     open_main_window_requested = pyqtSignal()
     add_task_requested         = pyqtSignal()
+    data_changed               = pyqtSignal()   # tamamla/sil sonrası emit
 
     def __init__(self):
         super().__init__(
@@ -237,11 +238,11 @@ class DesktopWidget(QWidget):
     # ------------------------------------------------------------------
     def _on_complete(self, task_id: int):
         task_service.complete_task(task_id)
-        self.refresh()
+        self.data_changed.emit()
 
     def _on_delete(self, task_id: int):
         task_service.delete_task(task_id)
-        self.refresh()
+        self.data_changed.emit()
 
     # ------------------------------------------------------------------
     def mousePressEvent(self, event):

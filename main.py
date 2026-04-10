@@ -58,13 +58,13 @@ def main():
 
     window.toggle_widget_requested.connect(toggle_widget)
 
-    # Widget, ana penceredeki değişikliklerden haberdar olsun
-    # (MainWindow refresh sonrası widget da yenilensin)
-    original_refresh = window.refresh
-    def _refresh_both():
-        original_refresh()
+    # Merkezi yenileme — her veri değişiminde hem pencere hem widget güncellenir
+    def refresh_all():
+        window.refresh()
         widget.refresh()
-    window.refresh = _refresh_both
+
+    window.data_changed.connect(refresh_all)
+    widget.data_changed.connect(refresh_all)
 
     # System tray
     tray = SystemTray()
@@ -74,8 +74,7 @@ def main():
 
     # Bildirim motoru
     engine = ReminderEngine(parent=app)
-    engine.task_notified.connect(lambda _: widget.refresh())
-    engine.task_notified.connect(lambda _: window.refresh())
+    engine.task_notified.connect(lambda _: refresh_all())
     engine.start()
 
     # Ana pencereyi başlangıçta göster (kullanıcı varlığından haberdar olsun)
