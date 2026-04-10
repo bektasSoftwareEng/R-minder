@@ -49,6 +49,15 @@ def main():
     widget.open_main_window_requested.connect(window.toggle_visibility)
     widget.add_task_requested.connect(open_main_and_add)
 
+    def toggle_widget():
+        if widget.isVisible():
+            widget.hide()
+        else:
+            widget.show()
+            widget.refresh()
+
+    window.toggle_widget_requested.connect(toggle_widget)
+
     # Widget, ana penceredeki değişikliklerden haberdar olsun
     # (MainWindow refresh sonrası widget da yenilensin)
     original_refresh = window.refresh

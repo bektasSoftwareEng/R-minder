@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QLabel, QTabWidget, QMessageBox,
 )
-from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtCore import Qt, QTimer, pyqtSignal
 
 from app.services import task_service
 from app.core import repository
@@ -13,6 +13,8 @@ from app.services import recurrence_service
 
 
 class MainWindow(QMainWindow):
+    toggle_widget_requested = pyqtSignal()
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("R-minder")
@@ -49,6 +51,20 @@ class MainWindow(QMainWindow):
         btn_add = QPushButton("+ Yeni Görev")
         btn_add.clicked.connect(self.open_add_form)
         h_layout.addWidget(btn_add)
+
+        btn_widget = QPushButton("⊞ Widget")
+        btn_widget.setObjectName("btn_secondary")
+        btn_widget.setToolTip("Masaüstü widget'ı göster/gizle")
+        btn_widget.clicked.connect(self.toggle_widget_requested)
+        h_layout.addWidget(btn_widget)
+
+        btn_settings = QPushButton("⚙")
+        btn_settings.setObjectName("btn_icon")
+        btn_settings.setToolTip("Ayarlar")
+        btn_settings.setFixedSize(36, 36)
+        btn_settings.clicked.connect(self._open_settings)
+        h_layout.addWidget(btn_settings)
+
         root.addWidget(header)
 
         # Sekmeler
@@ -194,6 +210,14 @@ class MainWindow(QMainWindow):
             task_service.delete_task(task_id)
 
         self.refresh()
+
+    def _open_settings(self):
+        from app.ui.settings_dialog import SettingsDialog
+        dlg = SettingsDialog(
+            on_widget_reset=lambda: self.toggle_widget_requested.emit(),
+            parent=self,
+        )
+        dlg.exec()
 
     # ------------------------------------------------------------------
     def closeEvent(self, event):
