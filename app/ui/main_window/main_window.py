@@ -8,6 +8,8 @@ from app.services import task_service
 from app.core import repository
 from app.ui.main_window.task_list import TaskListWidget
 from app.ui.main_window.task_form import TaskForm
+from app.ui.main_window.recurrence_action_dialog import RecurrenceActionDialog
+from app.services import recurrence_service
 
 
 class MainWindow(QMainWindow):
@@ -115,9 +117,56 @@ class MainWindow(QMainWindow):
 
     def _on_edit(self, task_id: int):
         task = repository.get_task(task_id)
-        if task and task.recurrence_id:
+        if task is None:
+            return
+
+        if task.recurrence_id:
             task.recurrence_rule = repository.get_recurrence_rule(task.recurrence_id)
-        self.open_add_form(task)
+            dlg = RecurrenceActionDialog("edit", task.title, parent=self)
+            choice = dlg.exec()
+            if choice == RecurrenceActionDialog.ONLY_THIS:
+                self._edit_single_instance(task)
+            elif choice == RecurrenceActionDialog.ALL_SERIES:
+                self._edit_full_series(task)
+        else:
+            self.open_add_form(task)
+
+    def _edit_single_instance(self, task):
+        """Bu instance'ı seridenden kopararak bağımsız olarak düzenle."""
+        form = TaskForm(self, task, show_recurrence=False)
+        if form.exec():
+            data = form.get_data()
+            task.title       = data["title"]
+            task.description = data["description"]
+            task.due_date    = data["due_date"]
+            task.due_time    = data["due_time"]
+            task.recurrence_id = None          # seriden kopar
+            task_service.update_task(task)
+            self.refresh()
+
+    def _edit_full_series(self, task):
+        """Görevin tüm serisini (kural dahil) düzenle."""
+        form = TaskForm(self, task, show_recurrence=True)
+        if form.exec():
+            data = form.get_data()
+            task.title       = data["title"]
+            task.description = data["description"]
+            task.due_date    = data["due_date"]
+            task.due_time    = data["due_time"]
+            new_rule = data["recurrence_rule"]
+            if new_rule and task.recurrence_id:
+                new_rule.id = task.recurrence_id
+                repository.update_recurrence_rule(new_rule)
+            elif new_rule:
+                saved = repository.create_recurrence_rule(new_rule)
+                task.recurrence_id = saved.id
+            else:
+                # Tekrarlama kaldırıldı
+                if task.recurrence_id:
+                    repository.delete_recurrence_rule(task.recurrence_id)
+                task.recurrence_id = None
+            task_service.update_task(task)
+            self.refresh()
 
     def _on_delete(self, task_id: int):
         task = repository.get_task(task_id)
@@ -125,24 +174,24 @@ class MainWindow(QMainWindow):
             return
 
         if task.recurrence_id:
-            reply = QMessageBox.question(
-                self, "Sil",
-                "Bu tekrarlayan görevin hangi instance'larını silmek istiyorsunuz?",
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No | QMessageBox.StandardButton.Cancel,
-                QMessageBox.StandardButton.Cancel,
-            )
-            # Basit: Yes = tüm seriyi sil, No = sadece bu instance
-            if reply == QMessageBox.StandardButton.Yes:
-                task_service.delete_task(task_id, delete_recurrence=True)
-            elif reply == QMessageBox.StandardButton.No:
+            dlg = RecurrenceActionDialog("delete", task.title, parent=self)
+            choice = dlg.exec()
+            if choice == RecurrenceActionDialog.ONLY_THIS:
+                # Sadece bu instance: task_exceptions'a işle, task kaydını sil
+                recurrence_service.create_exception_delete(task.recurrence_id, task.due_date)
                 task_service.delete_task(task_id, delete_recurrence=False)
+            elif choice == RecurrenceActionDialog.ALL_SERIES:
+                task_service.delete_task(task_id, delete_recurrence=True)
+            else:
+                return
         else:
             reply = QMessageBox.question(
                 self, "Sil", f'"{task.title}" silinsin mi?',
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             )
-            if reply == QMessageBox.StandardButton.Yes:
-                task_service.delete_task(task_id)
+            if reply != QMessageBox.StandardButton.Yes:
+                return
+            task_service.delete_task(task_id)
 
         self.refresh()
 
