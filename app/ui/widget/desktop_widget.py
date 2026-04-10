@@ -202,7 +202,7 @@ class DesktopWidget(QWidget):
             geo = self.geometry()
             save_widget_geometry(geo.x(), geo.y(), geo.width(), geo.height())
             # Embed sonrası konum güncelle
-            if self._embedder._workerw:
+            if self._embedder._parent_hwnd:
                 import ctypes
                 ctypes.windll.user32.MoveWindow(
                     self._embedder._hwnd,
